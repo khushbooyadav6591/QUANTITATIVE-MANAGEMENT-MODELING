@@ -1,0 +1,80 @@
+---
+title: "Quantitative Management Modelling - Assignment 1 part-I"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **1.Read a file for data :**
+
+
+ + **Data :**
+
+
+**Math test results by grade and ethencity and other categories** data of csv file format is downloaded from [link] https://catalog.data.gov/dataset
+
+
+```{r}
+# Reading the dataset
+NYS_Math_Test_Results_by_Grade <- read.csv("C:/Users/khush/Downloads/2006_-_2011_NYS_Math_Test_Results_by_Grade_-_Citywide_-_by_Race-Ethnicity.csv")
+
+# Structure of the dataset
+str(NYS_Math_Test_Results_by_Grade)
+
+# Top n rows of dataset
+head(NYS_Math_Test_Results_by_Grade)
+```
+By using read.csv command I can read the downloaded file from the system.
+
+--------------------------------------------------------------------------------
+
+
+#### **2.Produce summary statistics of the data :**
+
+The output of the summary() function shows every variable a set of descriptive statistics, depending on the type of the variable: Numerical variables: summary() gives the range, quartiles, median, and mean. Numerical and factor variables: summary() gives number of missing values, if there are any.
+```{r}
+summary(NYS_Math_Test_Results_by_Grade)
+```
+By using the summary() , I can see the see summarized details about the dataset variables, such as  mean,median,minimum-maximum ,25th and 75th quartiles values.
+
+--------------------------------------------------------------------------------
+
+
+
+#### **3.Produce a graph:** 
+
+
+Using **line chart** and **histogram** to analyse the data:
+
+
+```{r,warning=FALSE,message=TRUE,echo=FALSE}
+#library(dplyr)
+
+# line chart
+
+plot(NYS_Math_Test_Results_by_Grade$Grade,NYS_Math_Test_Results_by_Grade$Mean.Scale.Score, type="o", col="grey",main="Maths Test Results By Grade", col.main="navy blue",xlab = "Grades",ylab = "Mean Score")
+
+ # Histogram
+hist(NYS_Math_Test_Results_by_Grade$Mean.Scale.Score,main= " Maths Mean Score Based on Frequency",col.main="navy blue",xlab = "Mean Scores",ylab="Frequency")
+
+```
+
+
+
+#### References:
+
+[link]https://catalog.data.gov/dataset
+
+2006 - 2011 NYS Math Test Results by Grade - Citywide - by Race-Ethnicity
+
+
+--------------------------------------------------------------------------------
+
+
+
+
