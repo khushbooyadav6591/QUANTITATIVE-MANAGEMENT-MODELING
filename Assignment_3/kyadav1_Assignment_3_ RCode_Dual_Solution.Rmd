@@ -1,0 +1,89 @@
+---
+title: "Quantitative Management Assignment-3 Dual Solution"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### 1. Importing Library
+```{r}
+# Importing "lpSolveAPI" library
+library(lpSolveAPI)
+```
+### 2. Assigning Constraints and decision Variables
+```{r}
+# 1.Assigning number of constraints and decision variables
+lprec_dual <- make.lp(0, 11)
+
+```
+
+### 3. Setting up Objective function ,Constraints , decision variables
+```{r}
+# 3.1 Objective Function
+
+set.objfn(lprec_dual, c(750,900,450,13000,12000,5000,900,1200,750,0,0))
+
+# 3.2 Providing values for each constraint
+
+add.constraint(lprec_dual, c(1, 20, 1,900,450), ">=", 420,indices =c(1,4,7,10,11) )
+add.constraint(lprec_dual, c(1, 15, 1,900,450), ">=", 360 , indices =c(1,4,8,10,11) )
+add.constraint(lprec_dual, c(1, 12, 1,900,450), ">=", 300,indices=c(1,4,9,10,11))
+add.constraint(lprec_dual, c(1, 20,1,-750), ">=", 420,indices =c(2,5,7,10) )
+add.constraint(lprec_dual, c(1, 15, 1,-750), ">=", 360,indices = c(2,5,8,10))
+add.constraint(lprec_dual, c(1, 12, 1,-750), ">=", 300 , indices = c(2,5,9,10))
+add.constraint(lprec_dual, c(1, 20, 1,-750), ">=", 420, indices=c(3,6,7,11))
+add.constraint(lprec_dual, c(1, 15, 1,-750), ">=", 360,indices = c(3,6,8,11))
+add.constraint(lprec_dual, c(1, 12, 1,-750), ">=", 300, indices = c(3,6,9,11))
+
+# Applying lower bounds on last 2 columns(v10,v11)
+# Note that the default boundaries on the decision variable are c(0, 0, 0) and c(Inf, Inf, Inf).Since, these variables are unrestricted , they can have both negative and positive values.
+
+set.bounds(lprec_dual,lower=c(-Inf,-Inf),columns = c(10,11))
+
+```
+
+```{r}
+
+# 3.3 Naming the decision variables (column) and constraints (rows)
+
+rownames_dual <- c("Plant1_Large", "Plant1_Medium", "Plant1_Small", "Plant2_Large", "Plant2_Medium", "Plant2_Small", "Plant3_Large", "Plant3_Medium", "Plant3_Small")
+
+colnames_dual <- c("v1", "v2", "v3","v4", "v5", "v6","v7", "v8", "v9","v10","v11")
+
+dimnames(lprec_dual) <- list(rownames_dual,colnames_dual)
+
+```
+
+### 4. View the linear program external pointer
+```{r}
+lprec_dual
+
+```
+### 5. Save the LP model into a file
+```{r}
+write.lp(lprec_dual, filename = "Dual_Solution_Assignment_3.lp", type = "lp")
+```
+
+### 6. Reading from dual file and solving it
+```{r}
+weiglet_dual <- read.lp("dual_weiglet_Assignment_3.lp") # create an lp object weiglet
+
+solve(weiglet_dual)                   # Solution
+get.objective(weiglet_dual)           # get objective value
+get.variables(weiglet_dual)           # get values of decision variables
+get.constraints(weiglet_dual)         # get constraints
+
+```
+### 7. Results:
++ Used **"lpSolveAPI"** library to solve the LP problem.
++ As per the above results:
++ The  minimum total net profit per day,Z= **696000**.
++ The objective function value for the dual problem using **this solution is the same as the objective function value for the primal problem with the corresponding solution**.The dual solution corresponding to the optimal primal solution is both **optimal** and **feasible**.
+
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+
+
