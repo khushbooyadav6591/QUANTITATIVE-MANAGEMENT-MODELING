@@ -1,0 +1,359 @@
+---
+title: "Quantitive Management Modelling -Assignment-6"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Question 1:
+
+**Consider the following activity-on-arc project network, where the 12 arcs (arrows) 
+represent the 12 activities (tasks) that must be performed to complete the project and the 
+network displays the order in which the activities need to be performed. The number next 
+to each arc (arrow) is the time required for the corresponding activity. Consider the 
+problem of finding the longest path (the largest total time) through this network from start 
+(node 1) to finish (node 9), since the longest path is the critical path.**
+
+![](C:/Users/khush/Documents/images/Assignment_6_question1.PNG)
+
+**Formulate and solve the binary integer programming (BIP) model for this problem using 
+library lpsolve or equivalent in R.**
+
+***
+
+**Solution :**
+
+##### **Critical Path:**
+ 
+The critical path is the longest path of the network diagram. The activities in the critical path have an effect on the deadline of the project. If an activity of this path is delayed, the project will be delayed.
+
+**Decision variable:**
+
+Xij = 1, the arc from node i to node j is chosen in the optimal (longest) path otherwise Xij = 0
+
+
+**Objective Function:**
+
+Maximize the total time required from node 1 to node 9:
+
+Max. Z = ∑(aij)(Xij)
+
+Where, aij = time taken by arc (activity) from ith node and jth node
+
+
+**max Z. = 5X12 + 3X13 + 3X35 + 2X25 + 4X24 + 4X47 + 1X46 + 2X58  + 6X57 + 5X69 + 4X79 + 7X89**
+
+
+**Constraint:**
+
+For longest route problem, following constraint are to be satisfied,
+
+For origin **node 1**, outgoing arc is equal to 1,
+
+
+    -> X12 + X13 = 1
+   
+
+For intermediate nodes,
+
+Arc in = arc out
+
+For **node 2**: X12 = X25 + X24 ,
+
+              -> X12 – X25 - X24 = 0  
+
+For **node 3**: X13 = X35,
+
+               -> X13 – X35 = 0
+
+For **node 4**: X24 = X46 + X47,
+
+               -> X24 – X46 – X47 = 0
+
+For **node 5**: X25 + X35 = X57 + X58 ,
+
+              -> X25 + X35 - X57 - X58 = 0
+
+For **node 6**: X46 = X69 ,
+
+               -> X46 – X69 = 0
+
+For **node 7**: X57 + X47 = X79 ,
+
+               -> X57 + X47 – X79 = 0
+
+For **node 8**: X58 = X89 ,
+
+              -> X58 – X89 = 0
+
+
+For **destination node:**
+
+Arc in = 1
+
+For **node 9**
+
+     -> X69 + X79 + X89 = 1
+
+xij >=0
+
+***
+
+Let's use this formulation and solve the problem.
+
+
+```{r}
+library(lpSolveAPI)
+
+x <- read.lp("network.lp")
+x
+solve(x)
+get.objective(x)
+get.variables(x)
+get.constraints(x)
+
+```
+**Results:**
+
+
+* We were successfully able to solve the LP problem using lpSolveAPI library in R.
+
+* Based on above network model results the maximum time required is **17**.
+
+* The longest path would be **x12->x25->x57->x79**. i.e. is the critical path.
+
+
+---
+
+
+#### Question 2:
+
+**Selecting an Investment Portfolio An investment manager wants to determine an opti- 
+mal portfolio for a wealthy client. The fund has $2.5 million to invest, and its objective is 
+to maximize total dollar return from both growth and dividends over the course of the 
+coming year. The client has researched eight high-tech companies and wants the portfolio 
+to consist of shares in these firms only. Three of the firms (S1 – S3) are primarily 
+software companies, three (H1–H3) are primarily hardware companies, and two (C1–C2) 
+are internet consulting companies. The client has stipulated that no more than 40 percent 
+of the investment be allocated to any one of these three sectors. To assure diversification, 
+at least $100,000 must be invested in each of the eight stocks. Moreover, the number of 
+shares invested in any stock must be a multiple of 1000.** 
+ 
+**The table below gives estimates from the investment company’s database relating to these 
+stocks. These estimates include the price per share, the projected annual growth rate in the share 
+price, and the anticipated annual dividend payment per share. **
+
+
+
+![](C:/Users/khush/Documents/images/Assignment_6_question2.PNG)
+
+
+**Solution:**
+
+
+Let's assume decision variable for the given problem as  
+
+1. S1,S2,S3 for Software firms,
+
+2. H1,H2,H3 as Hardware firms and 
+
+3. C1,C2 as internet consulting firms
+
+
+Since, we need to maximize  the total dollar returns in terms of growth and dividend, we need to determine  growth in terms of dollars. The formula used to calculate growth in dollars would be :
+
+* **growth in dollars** = growth in percentage  * Price per share
+
+
+Therefore, now we can calculate Total Dollars Returns:-
+
+
+* **Total dollars returns** = growth in dollars + dividend
+
+Below is the snapshot for the calculation and result:
+
+![](C:/Users/khush/Documents/images/Basic_cal.PNG)
+
+
+***
+
+Now we can write the Objective function:
+
+**Objective:**
+
++ Maximize Return =  4S1+ 6.5S2+ 5.9S3+5.4H1+ 5.15H2+ 10H3+ 8.4C1+ 6.25C2;
+
+
+As  above in the problem it is mentioned that only 40% fo 2.5 million budget can be invested under each sector(Software, Hardware, Internet Consulting).Therefore,
+
+**Maximum amount invested in 1 sector = 2.5 million * 40% = 1 million or 1000000**
+
+Similarly,  To assure diversification, 
+at least $100,000 must be invested in each of the eight stocks i.e. **Minimum investment in each stock = .1 million or 100000**
+
+Now, lastly we need to make sure that No. of Shares should be multiple of 1000.We can apply this condition on number of shares as a constraint.
+
+
+
+
+***
+
+**Constraints:**
+
+
+
++ **Total Investment** : 40S1+ 50S2+ 80S3+ 60H1+ 45H2+ 60H3+ 30C1+ 25C2 <= 2500000
+
+**Software, Hardware , Internet Consulting stocks investments** 
+
++ Software firms stocks investment: 40S1+ 50S2+ 80S3 <= 1000000
++ Hardware firms stocks investment: 60H1+ 45H2+ 60H3 <= 1000000
++ Internet Consulting firms stocks investment:30C1+ 25C2 <= 1000000
+
+**Investment for each Software firm:**
+
++ Software firm 1 Investment: 40S1 >= 100000
++ Software firm 2 Investment: 50S2 >= 100000
++ Software firm 3 Investment: 80S3 >= 100000
+
+**Investment for each Hardware firm:**
+
++ Hardware firm 1 Investment: 60H1 >= 100000
++ Hardware firm 2 Investment: 45H2 >= 100000
++ Hardware firm 3 Investment: 60H3 >= 100000
+
+**Investment for each Internet Consulting  firm:**
+
++ Internet Consulting firm 1 Investment: 30C1 >= 100000
++ Internet Consulting firm 2 Investment: 25C2 >= 100000
+
+
+Since, we need to make sure that the number of shares should be multiple of 1000. therefore, below will be LP file:
+
+
+
+
++ **LP file snapshot:**
+
+![](C:/Users/khush/Documents/images/with_int_LP.PNG)
+
+
+
+***
+
+
+
+**1) Determine the maximum return on the portfolio. What is the optimal number of shares to 
+buy for each of the stocks? What is the corresponding dollar amount invested in each 
+stock?**
+
+Now based on the above formulation , we can solve it using lpSolveAPI in R.
+
+
+##### **Number of shares with Integer restriction**
+
+Here, we will first determine the maximum return on the portfolio with considering the decision variable(Number of shares) **with integer restriction**.
+
+```{r}
+LP_with_integer <- read.lp("LPwith_integer.lp")
+
+LP_with_integer
+
+solve(LP_with_integer)
+get.objective(LP_with_integer)
+get.variables(LP_with_integer)
+get.constraints(LP_with_integer)
+```
+**Observation :**
+
+* The Maximum return is **477400 dollars**.
+
+* The optimal number of shares are 3000,5000,2000,2000,3000,12000,29000,5000  for S1,S2,S3,H1,H2,H3,C1,C2 respectively.
+
+* the corresponding dollar amount are 120000,250000,160000,120000,135000,720000,870000,125000 for S1,S2,S3,H1,H2,H3,C1,C2 respectively.
+
+* Cummulative investment on each of the sectors are : 530000,975000,995000 for Software firms, Hardware firms and Internet Consulting firms respectively.
+
+
+
+
+***
+
+
+#####  **Number of shares without Integer restriction**
+
++ **LP file snapshot :**
+
+![](C:/Users/khush/Documents/images/without_Int_lp.PNG)
+
+
+
+
+Now, similarly we will determine the maximum return in R **without using Integer restriction** on no. of shares.:
+
+
+```{r}
+LPwithout_integer <- read.lp("LPwithout_integer.lp")
+
+LPwithout_integer
+solve(LPwithout_integer)
+get.objective(LPwithout_integer)
+get.variables(LPwithout_integer)
+```
+**Observation:**
+
+* The Maximum return is **487152.8 dollars**.
+
+* The optimal number of shares are 2500,6000,1250,1660,2200,1330,30000,4000  for S1,S2,S3,H1,H2,H3,C1,C2 respectively.
+
+
+
+
+
+**2) Compare the solution in which there is no integer restriction on the number of shares 
+invested. By how much (in percentage terms) do the integer restrictions alter the value of 
+the optimal objective function? By how much (in percentage terms) do they alter the 
+optimal investment quantities?**
+
+
+**Solution:**
+
+The comparison between the two solution one with Integer restriction on the number of shares and the other one without Integer restriction on the number of shares is given below:
+
+**Optimal Objective Function  and Objective Investment Quantities (In Dollars) Comparison**
+
+
+![](C:/Users/khush/Documents/images/Method1_Investment.PNG)
+
+
+**Number of Stocks Comparison**
+
+
+![](C:/Users/khush/Documents/images/Method1_No_of_stocks.PNG)
+
+
+**Observation:**
+
+* Successfully able to use Integer restriction on the decision variables(no. of shares) and compared the results without integer restrictions.
+
+* Integer Programming requires extra constraints to restrict the decision variable to Integer and both of the solution provides optimal solution.
+
+* Based on the above comparison, I can say that by using  with no integer restriction and Integer restriction, it alter the values in terms of investment and no. shares.
+
+* Change in percentage for optimal Objective function varies by **2.002000194** %.
+
+* Change in the number of shares  are by **-0.045558451%.**
+
+
+
+
+----
+----
+
+
